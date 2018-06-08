@@ -1,13 +1,22 @@
+;; Added by Package.el.  This must come before configurations of
+;; installed packages.  Don't delete this line.  If you don't want it,
+;; just comment it out by adding a semicolon to the start of the line.
+;; You may delete these explanatory comments.
+(package-initialize)
+
 (setq inhibit-splash-screen t)
 (setq inhibit-startup-message t) 
 (column-number-mode t)
 
+; (setq-default c-basic-offset 4)
+
 (if (eq system-type 'gnu/linux)
-  (add-to-list 'default-frame-alist '(font . "Source Code Pro-10" ))
-  (set-face-attribute 'default t :font "Source Code Pro-10" )
+  (add-to-list 'default-frame-alist '(font . "Source Code Pro-14" ))
+  (set-face-attribute 'default t :font "Source Code Pro-14" )
 )
 
-(cua-mode 1)
+;; UTF-8 as default encoding
+(set-language-environment "UTF-8")
 
 ;; recursively add ~/.emacs.d/
 (let ((default-directory "~/.emacs.d/elpa/"))
@@ -18,124 +27,91 @@
 ;;
 ;; ;; disable auto save
 (auto-save-mode -1)
-;;
 
-;; line numbers
-(if (>= emacs-major-version 23) (require 'linum))
-
+;; If you don't have MELPA in your package archives:
 (require 'package)
+(add-to-list
+  'package-archives
+  '("melpa" . "http://melpa.org/packages/") t)
+(package-initialize)
+(package-refresh-contents)
+
+;; Install Intero
+(package-install 'intero)
+(add-hook 'haskell-mode-hook 'intero-mode)
+
+(add-hook 'rust-mode-hook 'cargo-minor-mode)
+
+(add-hook 'after-init-hook #'global-flycheck-mode)
+
+(add-hook 'rust-mode-hook #'racer-mode)
+(add-hook 'racer-mode-hook #'eldoc-mode)
+(add-hook 'racer-mode-hook #'company-mode)
+(add-hook 'racer-mode-hook #'cargo-minor-mode)
+(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+(setq company-tooltip-align-annotations t)
+
+
+(with-eval-after-load 'lsp-mode
+  (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
+  (require 'lsp-rust))
+
+(add-hook 'rust-mode-hook #'lsp-rust-enable)
+(add-hook 'rust-mode-hook #'flycheck-mode)
+
+;; OCaml code
+(add-hook
+ 'tuareg-mode-hook
+ (lambda ()
+   ;; Add opam emacs directory to the load-path
+   (setq opam-share
+     (substring
+      (shell-command-to-string "opam config var share 2> /dev/null")
+      0 -1))
+   (add-to-list 'load-path (concat opam-share "/emacs/site-lisp"))
+   ;; Load merlin-mode
+   (require 'merlin)
+   ;; Start merlin on ocaml files
+   (add-hook 'tuareg-mode-hook 'merlin-mode t)
+   (add-hook 'caml-mode-hook 'merlin-mode t)
+   ;; Enable auto-complete
+   (setq merlin-use-auto-complete-mode 'easy)
+   ;; Use opam switch to lookup ocamlmerlin binary
+   (setq merlin-command 'opam)
+
+   (setq utop-command "opam config exec -- utop -emacs")
+
+   (company-mode)
+   (require 'ocp-indent)
+   (autoload 'utop-minor-mode "utop" "Minor mode for utop" t)
+   (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
+   (autoload 'merlin-mode "merlin" "Merlin mode" t)
+   (utop-minor-mode)
+   (company-quickhelp-mode)
+   ;; Important to note that setq-local is a macro and it needs to be
+   ;; separate calls, not like setq
+   (setq-local merlin-completion-with-doc t)
+   (setq-local indent-tabs-mode nil)
+   (setq-local show-trailing-whitespace t)
+   (setq-local indent-line-function 'ocp-indent-line)
+   (setq-local indent-region-function 'ocp-indent-region)
+   (merlin-mode)))
+
+(add-hook 'utop-mode-hook (lambda ()
+                (set-process-query-on-exit-flag
+(get-process "utop") nil)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(TeX-PDF-mode t)
- '(TeX-source-correlate-method (quote synctex))
- '(TeX-source-correlate-mode t)
- '(TeX-source-correlate-start-server t)
- '(TeX-view-program-list
+ '(package-selected-packages
    (quote
-    (("Okular"
-      ("Command")
-      "okular --unique %o#src:%n%b"))))
- '(TeX-view-program-selection
-   (quote
-    (((output-dvi has-no-display-manager)
-      "dvi2tty")
-     ((output-dvi style-pstricks)
-      "dvips and gv")
-     (output-dvi "xdvi")
-     (output-pdf "Okular")
-     (output-html "xdg-open"))))
- '(package-archives
-   (quote
-    (("gnu" . "https://elpa.gnu.org/packages/")
-     ("melpa-stable" . "https://stable.melpa.org/packages/")))))
-
-;;(require 'cl-lib)
-
-;(require 'haskell-mode)
-
-(add-to-list 'package-archives
-         '("melpa" . "https://stable.melpa.org/packages/"))
-(package-initialize)
-
-(when (not package-archive-contents)
-    (package-refresh-contents))
-
-(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
-;(add-hook 'haskell-interactive-mode-hook 'structured-haskell-repl-mode)
-;(add-hook 'haskell-mode-hook 'haskell-auto-insert-module-template)
-
-;(custom-set-variables '(haskell-process-type 'stack-ghci))
-
-(let ((my-cabal-path (expand-file-name "~/.cabal/bin")))
-  (setenv "PATH" (concat my-cabal-path ":" (getenv "PATH")))
-  (add-to-list 'exec-path my-cabal-path))
-
-(if (eq system-type 'darwin)
-  (add-to-list 'load-path "~/Library/Haskell/share/ghc-7.10.3-x86_64/ghc-mod-5.5.0.0/elisp")
-)
-(if (eq system-type 'gnu/linux)
-  (add-to-list 'load-path "~/.cabal/share/x86_64-linux-ghc-7.10.3/ghc-mod-5.5.0.0")
-)
-
-(require 'haskell-mode)
-(define-key haskell-mode-map "\C-ch" 'haskell-hoogle)
-;(setq haskell-hoogle-command "hoogle")
-
-;(autoload 'ghc-init "ghc" nil t)
-;(autoload 'ghc-debug "ghc" nil t)
-
-;(add-hook 'haskell-mode-hook (lambda () (ghc-init)))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;;;;;;;;;;;;;;;        LaTeX         ;;;;;;;;;;;;;;;;;
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; ##### Run emacs in server mode in order to be able to use
-;; ##### emacsclient in Okular. Don't forget to configure
-;; ##### Okular to use emacs in
-;; ##### "Configuration/Configure Okular/Editor"
-;; ##### => Editor => Emacsclient. (you should see
-;; ##### emacsclient -a emacs --no-wait +%l %f
-;; ##### in the field "Command".
-(server-start) 
-
-(setq TeX-PDF-mode t) ;; use pdflatex instead of latex
-
-(setq-default TeX-master nil)
-;; ##### Enable synctex correlation. From Okular just press
-;; ##### Shift + Left click to go to the good line.
-(setq TeX-source-correlate-method 'synctex)
-;; ##### Enable synctex generation. Even though the command shows
-;; ##### as "latex" pdflatex is actually called
-(custom-set-variables '(LaTeX-command "latex -synctex=1") )
-
-;; ##### Use Okular to open your document at the good
-;; ##### point. It can detect the master file.
-(add-hook 'LaTeX-mode-hook '(lambda ()
-                  (add-to-list 'TeX-expand-list
-                       '("%u" Okular-make-url))))
-
-(defun Okular-make-url () (concat
-               "file://"
-               (expand-file-name (funcall file (TeX-output-extension) t)
-                         (file-name-directory (TeX-master-file)))
-               "#src:"
-               (TeX-current-line)
-               (expand-file-name (TeX-master-directory))
-               "./"
-               (TeX-current-file-name-master-relative)))
-
-;; ## Use these lines if you want a confirmation of the
-;; ## command line to run...
-;; (setq TeX-view-program-selection '((output-pdf "Okular")))
-;; (setq TeX-view-program-list '(("Okular" "okular --unique %u")))
-;; ## And theses if you don't want any confirmation.
-(eval-after-load "tex"
-  '(add-to-list 'TeX-command-list 
-		'("View" "okular --unique %u" TeX-run-discard-or-function nil t :help "View file")))
-
-(load-file (let ((coding-system-for-read 'utf-8))
-                (shell-command-to-string "agda-mode locate")))
+    (groovy-mode magithub lsp-rust markdown-mode racer w3 utop tuareg pos-tip ocp-indent intero graphviz-dot-mode flycheck-rust csharp-mode cargo))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
