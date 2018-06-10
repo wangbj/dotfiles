@@ -21,7 +21,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub groovy-mode company auto-complete cl iedit utop tuareg merlin))
+(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony groovy-mode company auto-complete iedit utop tuareg merlin))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -128,5 +128,18 @@
                 (set-process-query-on-exit-flag
                  (get-process "utop") nil)))
 
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+
+(if (file-exists-p "/usr/local/share/emacs/site-lisp/cask/cask.el")
+    ( progn
+      (require 'cask "/usr/local/share/emacs/site-lisp/cask/cask.el")
+      (cask-initialize))
+  ( when (file-exists-p "~/.cask/cask.el")
+    (require 'cask "~/.cask/cask.el")
+    (cask-initialize))
+)
+
 (provide 'init)
-;;; init.el ends here
