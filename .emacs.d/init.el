@@ -10,7 +10,7 @@
         (append (delete-dups load-path)
                 '("~/.emacs.d/lisp"))))
 
-(if (eq system-type 'gnu/linux)
+(when (eq system-type 'gnu/linux)
   (add-to-list 'default-frame-alist '(font . "Source Code Pro-12" ))
   (set-face-attribute 'default t :font "Source Code Pro-12" )
 )
@@ -21,7 +21,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony groovy-mode company auto-complete iedit utop tuareg merlin))
+(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony irony-eldoc flycheck-irony company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -58,6 +58,7 @@
 ; (setq-default c-basic-offset 4)
 
 (global-flycheck-mode)
+(add-hook 'after-init-hook 'global-company-mode)
 
 (when (and (display-graphic-p) (eq system-type 'darwin))
   (with-eval-after-load 'exec-path-from-shell
@@ -128,10 +129,16 @@
                 (set-process-query-on-exit-flag
                  (get-process "utop") nil)))
 
+; irony mode
 (add-hook 'c++-mode-hook 'irony-mode)
 (add-hook 'c-mode-hook 'irony-mode)
 (add-hook 'objc-mode-hook 'irony-mode)
 (add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+(add-hook 'irony-mode-hook #'irony-eldoc)
+(eval-after-load 'flycheck
+  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'company-irony))
 
 (if (file-exists-p "/usr/local/share/emacs/site-lisp/cask/cask.el")
     ( progn
