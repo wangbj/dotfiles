@@ -1,63 +1,90 @@
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-(package-initialize)
+;;; init.el --- emacs init.el
 
-(setq inhibit-splash-screen t)
-(setq inhibit-startup-message t) 
-(column-number-mode t)
+;;; Commentary:
+;;; Emacs init file
 
-; (setq-default c-basic-offset 4)
+;;; Code:
+
+(eval-and-compile
+  (setq load-path
+        (append (delete-dups load-path)
+                '("~/.emacs.d/lisp"))))
 
 (if (eq system-type 'gnu/linux)
-  (add-to-list 'default-frame-alist '(font . "Source Code Pro-14" ))
-  (set-face-attribute 'default t :font "Source Code Pro-14" )
+  (add-to-list 'default-frame-alist '(font . "Source Code Pro-12" ))
+  (set-face-attribute 'default t :font "Source Code Pro-12" )
 )
 
-;; UTF-8 as default encoding
-(set-language-environment "UTF-8")
-
-;; recursively add ~/.emacs.d/
-(let ((default-directory "~/.emacs.d/elpa/"))
-    (normal-top-level-add-subdirs-to-load-path))
-
-;; disable backup files
-(setq make-backup-files nil)
-;;
-;; ;; disable auto save
-(auto-save-mode -1)
-
-;; If you don't have MELPA in your package archives:
 (require 'package)
-(add-to-list
-  'package-archives
-  '("melpa" . "http://melpa.org/packages/") t)
-(package-initialize)
-(package-refresh-contents)
 
-;; Install Intero
-(package-install 'intero)
+;; keep the installed packages in .emacs.d
+(setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
+
+; list the packages you want
+(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub groovy-mode company auto-complete cl iedit utop tuareg merlin))
+
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/") t)
+
+; activate all the packages (in particular autoloads)
+(package-initialize)
+
+; fetch the list of packages available
+(unless package-archive-contents
+  (package-refresh-contents))
+
+; install the missing packages
+(dolist (package package-list)
+  (unless (package-installed-p package)
+    (package-install package)))
+
+(setq inhibit-splash-screen t)
+(setq inhibit-startup-message t)
+(setq make-backup-files nil)
+(auto-save-mode -1)
+;; disable the annoying bell ring
+(setq ring-bell-function 'ignore)
+
+(column-number-mode t)
+(line-number-mode t)
+
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-language-environment 'utf-8)
+
+;; set c-basic-offset
+; (setq-default c-basic-offset 4)
+
+(global-flycheck-mode)
+
+(when (and (display-graphic-p) (eq system-type 'darwin))
+  (with-eval-after-load 'exec-path-from-shell
+    (exec-path-from-shell-setenv "SHELL" "/bin/bash")))
+
+;; magit
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
+
 (add-hook 'haskell-mode-hook 'intero-mode)
 
 (add-hook 'rust-mode-hook 'cargo-minor-mode)
-
-(add-hook 'after-init-hook #'global-flycheck-mode)
 
 (add-hook 'rust-mode-hook #'racer-mode)
 (add-hook 'racer-mode-hook #'eldoc-mode)
 (add-hook 'racer-mode-hook #'company-mode)
 (add-hook 'racer-mode-hook #'cargo-minor-mode)
-(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-(setq company-tooltip-align-annotations t)
+;(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+;(setq company-tooltip-align-annotations t)
 
 
 (with-eval-after-load 'lsp-mode
   (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
   (require 'lsp-rust))
 
-(add-hook 'rust-mode-hook #'lsp-rust-enable)
-(add-hook 'rust-mode-hook #'flycheck-mode)
+;;(add-hook 'rust-mode-hook #'lsp-rust-enable)
+;;(add-hook 'rust-mode-hook #'flycheck-mode)
 
 ;; OCaml code
 (add-hook
@@ -99,19 +126,7 @@
 
 (add-hook 'utop-mode-hook (lambda ()
                 (set-process-query-on-exit-flag
-(get-process "utop") nil)))
+                 (get-process "utop") nil)))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (groovy-mode magithub lsp-rust markdown-mode racer w3 utop tuareg pos-tip ocp-indent intero graphviz-dot-mode flycheck-rust csharp-mode cargo))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+(provide 'init)
+;;; init.el ends here
