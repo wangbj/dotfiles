@@ -10,18 +10,13 @@
         (append (delete-dups load-path)
                 '("~/.emacs.d/lisp"))))
 
-(when (eq system-type 'gnu/linux)
-  (add-to-list 'default-frame-alist '(font . "Source Code Pro-12" ))
-  (set-face-attribute 'default t :font "Source Code Pro-12" )
-)
-
 (require 'package)
 
 ;; keep the installed packages in .emacs.d
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony irony-eldoc flycheck-irony company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc ocp-indent))
+(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony irony-eldoc flycheck-irony flycheck-rust company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc ocp-indent))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -76,13 +71,13 @@
 (add-hook 'racer-mode-hook #'eldoc-mode)
 (add-hook 'racer-mode-hook #'company-mode)
 (add-hook 'racer-mode-hook #'cargo-minor-mode)
-;(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-;(setq company-tooltip-align-annotations t)
+(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
+(setq company-tooltip-align-annotations t)
 
 
-(with-eval-after-load 'lsp-mode
-  (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
-  (require 'lsp-rust))
+;; (with-eval-after-load 'lsp-mode
+;;  (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
+;;  (require 'lsp-rust))
 
 ;;(add-hook 'rust-mode-hook #'lsp-rust-enable)
 ;;(add-hook 'rust-mode-hook #'flycheck-mode)
