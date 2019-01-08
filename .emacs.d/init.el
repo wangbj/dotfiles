@@ -21,7 +21,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony irony-eldoc flycheck-irony company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc))
+(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony irony-eldoc flycheck-irony company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc ocp-indent))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -87,48 +87,6 @@
 ;;(add-hook 'rust-mode-hook #'lsp-rust-enable)
 ;;(add-hook 'rust-mode-hook #'flycheck-mode)
 
-;; OCaml code
-(add-hook
- 'tuareg-mode-hook
- (lambda ()
-   ;; Add opam emacs directory to the load-path
-   (setq opam-share
-     (substring
-      (shell-command-to-string "opam config var share 2> /dev/null")
-      0 -1))
-   (add-to-list 'load-path (concat opam-share "/emacs/site-lisp"))
-   ;; Load merlin-mode
-   (require 'merlin)
-   ;; Start merlin on ocaml files
-   (add-hook 'tuareg-mode-hook 'merlin-mode t)
-   (add-hook 'caml-mode-hook 'merlin-mode t)
-   ;; Enable auto-complete
-   (setq merlin-use-auto-complete-mode 'easy)
-   ;; Use opam switch to lookup ocamlmerlin binary
-   (setq merlin-command 'opam)
-
-   (setq utop-command "opam config exec -- utop -emacs")
-
-   (company-mode)
-   (require 'ocp-indent)
-   (autoload 'utop-minor-mode "utop" "Minor mode for utop" t)
-   (autoload 'utop-setup-ocaml-buffer "utop" "Toplevel for OCaml" t)
-   (autoload 'merlin-mode "merlin" "Merlin mode" t)
-   (utop-minor-mode)
-   (company-quickhelp-mode)
-   ;; Important to note that setq-local is a macro and it needs to be
-   ;; separate calls, not like setq
-   (setq-local merlin-completion-with-doc t)
-   (setq-local indent-tabs-mode nil)
-   (setq-local show-trailing-whitespace t)
-   (setq-local indent-line-function 'ocp-indent-line)
-   (setq-local indent-region-function 'ocp-indent-region)
-   (merlin-mode)))
-
-(add-hook 'utop-mode-hook (lambda ()
-                (set-process-query-on-exit-flag
-                 (get-process "utop") nil)))
-
 ; irony mode
 (add-hook 'c++-mode-hook 'irony-mode)
 (add-hook 'c-mode-hook 'irony-mode)
@@ -150,3 +108,7 @@
 )
 
 (provide 'init)
+;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
+;; OCaml code
+(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
+;; ## end of OPAM user-setup addition for emacs / base ## keep this line
