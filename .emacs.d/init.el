@@ -16,7 +16,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(intero racer cargo flycheck lsp-rust magit magithub irony irony-eldoc flycheck-irony flycheck-rust company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc ocp-indent))
+(setq package-list '(intero racer cargo flycheck magit magithub irony irony-eldoc flycheck-irony flycheck-rust company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc ocp-indent))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
