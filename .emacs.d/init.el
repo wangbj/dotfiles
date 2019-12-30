@@ -72,6 +72,7 @@
 (add-hook 'racer-mode-hook #'cargo-minor-mode)
 (add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
 (setq company-tooltip-align-annotations t)
+(setq rust-format-on-save t)
 
 
 ;; (with-eval-after-load 'lsp-mode
