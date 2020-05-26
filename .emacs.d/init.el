@@ -16,7 +16,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(magit magithub dap-mode which-key lsp-mode rustic use-package))
+(setq package-list '(flycheck magit magithub dap-mode which-key lsp-mode rustic use-package))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -48,12 +48,6 @@
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 (set-language-environment 'utf-8)
-
-;; set c-basic-offset
-; (setq-default c-basic-offset 4)
-
-(global-flycheck-mode)
-(add-hook 'after-init-hook 'global-company-mode)
 
 (when (and (display-graphic-p) (eq system-type 'darwin))
   (with-eval-after-load 'exec-path-from-shell
@@ -96,6 +90,7 @@
 (setq rustic-lsp-server 'rust-analyzer)
 ;; (setq lsp-rust-analyzer-server-command '("~/.local/bin/rust-analyzer"))
 (push 'rustic-clippy flycheck-checkers)
+(remove-hook 'rustic-mode-hook 'flycheck-mode)
 
 
 (provide 'init)
