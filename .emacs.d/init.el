@@ -16,7 +16,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(intero racer cargo flycheck magit magithub irony irony-eldoc flycheck-irony flycheck-rust company-irony groovy-mode company auto-complete iedit utop tuareg merlin merlin-eldoc ocp-indent))
+(setq package-list '(magit magithub dap-mode which-key lsp-mode rustic use-package))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -63,47 +63,39 @@
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
 
-(add-hook 'haskell-mode-hook 'intero-mode)
+(use-package lsp-mode
+  :hook ((rustic-mode . lsp)
+         (python-mode . lsp)
+         (c-mode . lsp)
+         (c++-mode . lsp)
+         (objc-mode . lsp)
+         (go-mode . lsp)
+         (lsp-mode . lsp-enable-which-key-integration))
+  :commands lsp
+  :config
+  (setq lsp-idle-delay 0.500)
+  )
 
-(add-hook 'rust-mode-hook #'racer-mode)
-(add-hook 'rust-mode-hook 'cargo-minor-mode)
-(add-hook 'racer-mode-hook #'eldoc-mode)
-(add-hook 'racer-mode-hook #'company-mode)
-(add-hook 'racer-mode-hook #'cargo-minor-mode)
-(add-hook 'flycheck-mode-hook #'flycheck-rust-setup)
-(setq company-tooltip-align-annotations t)
-(setq rust-format-on-save t)
+(use-package lsp-ui :commands lsp-ui-mode)
+(use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+(use-package lsp-treemacs :commands lsp-treemacs-errors-list)
+(use-package dap-mode)
 
+(use-package which-key
+  :config
+  (which-key-mode))
 
-;; (with-eval-after-load 'lsp-mode
-;;  (setq lsp-rust-rls-command '("rustup" "run" "nightly" "rls"))
-;;  (require 'lsp-rust))
+(with-eval-after-load 'lsp-mode
+  (setq lsp-diagnostics-modeline-scope :project)
+  (add-hook 'lsp-managed-mode-hook 'lsp-diagnostics-modeline-mode))
 
-;;(add-hook 'rust-mode-hook #'lsp-rust-enable)
-;;(add-hook 'rust-mode-hook #'flycheck-mode)
+;; Rustic, LSP
+(require 'rustic)
 
-; irony mode
-(add-hook 'c++-mode-hook 'irony-mode)
-(add-hook 'c-mode-hook 'irony-mode)
-(add-hook 'objc-mode-hook 'irony-mode)
-(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
-(add-hook 'irony-mode-hook #'irony-eldoc)
-(eval-after-load 'flycheck
-  '(add-hook 'flycheck-mode-hook #'flycheck-irony-setup))
-(eval-after-load 'company
-  '(add-to-list 'company-backends 'company-irony))
+;; (setq rustic-lsp-client nil)
+(setq rustic-lsp-server 'rust-analyzer)
+;; (setq lsp-rust-analyzer-server-command '("~/.local/bin/rust-analyzer"))
+(push 'rustic-clippy flycheck-checkers)
 
-(if (file-exists-p "/usr/local/share/emacs/site-lisp/cask/cask.el")
-    ( progn
-      (require 'cask "/usr/local/share/emacs/site-lisp/cask/cask.el")
-      (cask-initialize))
-  ( when (file-exists-p "~/.cask/cask.el")
-    (require 'cask "~/.cask/cask.el")
-    (cask-initialize))
-)
 
 (provide 'init)
-;; ## added by OPAM user-setup for emacs / base ## 56ab50dc8996d2bb95e7856a6eddb17b ## you can edit, but keep this line
-;; OCaml code
-(require 'opam-user-setup "~/.emacs.d/opam-user-setup.el")
-;; ## end of OPAM user-setup addition for emacs / base ## keep this line
