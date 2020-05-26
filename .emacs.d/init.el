@@ -53,6 +53,8 @@
   (with-eval-after-load 'exec-path-from-shell
     (exec-path-from-shell-setenv "SHELL" "/bin/bash")))
 
+(use-package flycheck)
+
 ;; magit
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x M-g") 'magit-dispatch-popup)
