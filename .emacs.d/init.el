@@ -16,7 +16,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(flycheck magit magithub dap-mode which-key lsp-mode rustic use-package))
+(setq package-list '(company flycheck magit magithub dap-mode which-key lsp-mode rustic use-package))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -90,9 +90,22 @@
 
 ;; (setq rustic-lsp-client nil)
 (setq rustic-lsp-server 'rust-analyzer)
-;; (setq lsp-rust-analyzer-server-command '("~/.local/bin/rust-analyzer"))
-(push 'rustic-clippy flycheck-checkers)
-(remove-hook 'rustic-mode-hook 'flycheck-mode)
+(setq lsp-rust-analyzer-server-command '("~/.cargo/bin/rust-analyzer"))
+;; (push 'rustic-clippy flycheck-checkers)
+;; (remove-hook 'rustic-mode-hook 'flycheck-mode)
 
 
 (provide 'init)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(use-package rustic which-key dap-mode magithub magit flycheck)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
