@@ -16,7 +16,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(company flycheck magit magithub dap-mode which-key lsp-mode rustic use-package))
+(setq package-list '(company flycheck magit magithub dap-mode which-key lsp-mode lsp-haskell rustic use-package))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -62,6 +62,8 @@
 (use-package lsp-mode
   :hook ((rustic-mode . lsp)
          (python-mode . lsp)
+         (haskell-mode . lsp)
+         (haskell-literate-mode . lsp)
          (c-mode . lsp)
          (c++-mode . lsp)
          (objc-mode . lsp)
@@ -71,6 +73,8 @@
   :config
   (setq lsp-idle-delay 0.500)
   )
+
+(add-hook 'haskell-mode-hook 'interactive-haskell-mode)
 
 (use-package lsp-ui :commands lsp-ui-mode)
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
@@ -96,16 +100,3 @@
 
 
 (provide 'init)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(use-package rustic which-key dap-mode magithub magit flycheck)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
