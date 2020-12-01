@@ -95,6 +95,7 @@
 ;; (setq rustic-lsp-client nil)
 (setq rustic-lsp-server 'rust-analyzer)
 (setq lsp-rust-analyzer-server-command '("~/.cargo/bin/rust-analyzer"))
+(setq rustic-format-on-save t)
 ;; (push 'rustic-clippy flycheck-checkers)
 ;; (remove-hook 'rustic-mode-hook 'flycheck-mode)
 
