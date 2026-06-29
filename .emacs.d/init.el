@@ -16,7 +16,7 @@
 (setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
 
 ; list the packages you want
-(setq package-list '(auctex company flycheck lsp-ui magit magithub dap-mode which-key lsp-mode lsp-haskell rustic use-package))
+(setq package-list '(auctex company flycheck lsp-ui magit forge dap-mode which-key lsp-mode lsp-haskell rustic use-package))
 
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/") t)
@@ -54,6 +54,8 @@
     (exec-path-from-shell-setenv "SHELL" "/bin/bash")))
 
 (use-package flycheck)
+
+(use-package forge :after magit)
 
 ;; magit
 (global-set-key (kbd "C-x g") 'magit-status)
